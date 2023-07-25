@@ -1,0 +1,96 @@
+esphome:
+  name: aqi-sens55
+  friendly_name: aqi_sens55
+
+esp32:
+  board: esp32-c3-devkitm-1
+  framework:
+    type: arduino
+
+i2c:
+  - id: bus_a
+    sda: 6
+    scl: 7
+    scan: true
+
+sensor:
+  - platform: wifi_signal # Reports the WiFi signal strength/RSSI in dB
+    name: "WiFi Signal dB"
+    id: wifi_signal_db
+    update_interval: 15s
+  
+  - platform: sen5x
+    id: sen54
+    pm_1_0:
+      name: " PM <1µm Weight concentration"
+      id: pm_1_0
+      accuracy_decimals: 1
+    pm_2_5:
+      name: " PM <2.5µm Weight concentration"
+      id: pm_2_5
+      accuracy_decimals: 1
+    pm_4_0:
+      name: " PM <4µm Weight concentration"
+      id: pm_4_0
+      accuracy_decimals: 1
+    pm_10_0:
+      name: " PM <10µm Weight concentration"
+      id: pm_10_0
+      accuracy_decimals: 1
+    temperature:
+      name: "Temperature"
+      accuracy_decimals: 1
+    humidity:
+      name: "Humidity"
+      accuracy_decimals: 0
+    voc:
+      name: "VOC"
+      algorithm_tuning:
+        index_offset: 100
+        learning_time_offset_hours: 12
+        learning_time_gain_hours: 12
+        gating_max_duration_minutes: 180
+        std_initial: 50
+        gain_factor: 230
+    nox:
+      name: "NOx"
+      algorithm_tuning:
+        index_offset: 100
+        learning_time_offset_hours: 12
+        learning_time_gain_hours: 12
+        gating_max_duration_minutes: 180
+        std_initial: 50
+        gain_factor: 230
+    temperature_compensation:
+      offset: 0
+      normalized_offset_slope: 0
+      time_constant: 0
+    acceleration_mode: low
+    store_baseline: true
+    address: 0x69
+    update_interval: 15s
+
+
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "ya/PByeZHI5gWT3kYmegpIY7qra35LHnEgS7DtYrMGU="
+
+ota:
+  password: "279bce0426983277ecbdab0ecba91616"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Aqi-Sen55 Fallback Hotspot"
+    password: "vofapqXKnZQ4"
+
+captive_portal:
+    
