@@ -14,7 +14,9 @@ Sensirion Sen55 Sensor:  ([Datasheet](https://sensirion.com/media/documents/6791
 NeoPixel LED (WS2812b):
 - LED for showing alert status
 
-# Device 
+# Device Design
+
+The case design is built around a small-ish form factor that allows the eInk display to be centered even though the connector placement and the fact it is a side mounted connector makes for a wider case.  The extra width does allow for some decent component placement like a battery pack, processor and core sensor.
 
 ![device_front](attachments/device_front.png)
 
@@ -33,15 +35,17 @@ https://docs.airnowapi.org/
 
 I started out attempting to make this sensor battery powered in addition to USB powered, however I just can't get consistent results yet and so the battery monitoring component of this project has been put on hold in favor of a always plugged in design approach.
 
-# Proof of Concent v5
+# Case Design
 
-After a number of 3D printing and fitting components this design 
+## Latest Design
+
+After a number of 3D printing and fitting components this design.  This version is the 5th version of the case front and 3rd version of the back.  The back I think needs another revision to give a little bit more room for the SEN55 sensor since it is overly tight.
 
 ![poc_v5_front](attachments/poc_v5_front_cover.png)
 
 ![poc_v5_back](attachments/poc_v5_back_cover.png)
 
-# Proof of Concept v1
+## First Proof of Concept (aka: v1)
 
 Original first attempt at fitting in the components and getting a feel for size and functionality.
 
