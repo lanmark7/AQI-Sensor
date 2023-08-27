@@ -1,6 +1,6 @@
 # Air Quality Sensor
 
-The purpose of this project is to create a stand-alone sensor device for indoor capture of air quality metrics that are displayed on the eInk screen on the device as well as report measurements to Home Assistant.
+The purpose of this project is to create a stand-alone sensor device for indoor capture of air quality metrics that are displayed on the eInk screen on the device as well as report measurements to Home Assistant.  This project was inspired by the various forest fires causing poor AQI as well as local neighbors firepits that can spike indoor air quality.
 
 # Device Details
 
