@@ -54,14 +54,14 @@ sensor:
     address: 0x69
     update_interval: 15s
     temperature:
-      id: ${device_id}.temp
+      id: ${device_id}_temp
       name: ${device_id}.temp
       accuracy_decimals: 1
       filters:
         - lambda: return x * (9.0/5.0) + 32.0;
       unit_of_measurement: "F"
     humidity:
-      id: ${device_id}.humidity
+      id: ${device_id}_humidity
       name: ${device_id}.humidity
       accuracy_decimals: 0
       unit_of_measurement: "%"
@@ -119,8 +119,7 @@ font:
 
 display:
   - platform: waveshare_epaper
-    id: ${device_id}_waveshare_2_9
-    name: ${device_id}.waveshare_2_9
+    id: ${device_id}_waveshare_2_9    
     busy_pin: 5
     reset_pin: 4
     dc_pin: 3
