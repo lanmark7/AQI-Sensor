@@ -1,0 +1,203 @@
+substitutions:
+  device_id: airquality
+  device_key: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx=="
+  device_password: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+packages:
+  xiao: !include xiao-esp32c3-common.yml
+
+spi:  
+  mosi_pin: 10  # DSO
+  miso_pin: 9   # DSI
+  clk_pin: 8    # SCK
+
+time:
+  - platform: homeassistant
+    id: homeassistant_time
+  
+light:
+  - platform: neopixelbus
+    id: ${device_id}_status_led
+    name: ${device_id}_status_led
+    type: GRB
+    variant: WS2811
+    pin: 21
+    num_leds: 1
+
+api:
+  services:
+    - service: airquality_fan_autoclean
+      then:
+        - sen5x.start_fan_autoclean: sen55
+
+sensor:
+  - platform: homeassistant
+    id: airnow_pm2_5
+    entity_id: sensor.airnow_pm2_5
+
+  - platform: homeassistant
+    id: airnow_aqi
+    entity_id: sensor.airnow_aqi
+
+  - platform: homeassistant
+    id: aqi_outside_temperature
+    entity_id: sensor.kdsm_temperature
+
+  - platform: homeassistant
+    id: aqi_outside_humidity
+    entity_id: sensor.kdsm_relative_humidity
+
+  - platform: sen5x
+    id: sen55
+    acceleration_mode: low
+    store_baseline: true
+    address: 0x69
+    update_interval: 15s
+    temperature:
+      id: ${device_id}.temp
+      name: ${device_id}.temp
+      accuracy_decimals: 1
+      filters:
+        - lambda: return x * (9.0/5.0) + 32.0;
+      unit_of_measurement: "F"
+    humidity:
+      id: ${device_id}.humidity
+      name: ${device_id}.humidity
+      accuracy_decimals: 0
+      unit_of_measurement: "%"
+    pm_1_0:
+      id: ${device_id}_pm1
+      name: ${device_id}.pm1
+      accuracy_decimals: 1
+      unit_of_measurement: "ug/m3"
+    pm_2_5:
+      id: ${device_id}_pm25
+      name: ${device_id}.pm25
+      accuracy_decimals: 1
+      unit_of_measurement: "ug/m3"
+    pm_4_0:
+      id: ${device_id}_pm4
+      name: ${device_id}.pm4
+      accuracy_decimals: 1
+      unit_of_measurement: "ug/m3"
+    pm_10_0:
+      id: ${device_id}_pm10
+      name: ${device_id}.pm10
+      accuracy_decimals: 1
+      unit_of_measurement: "ug/m3"    
+    voc:
+      id: ${device_id}_voc
+      name: ${device_id}.voc
+    nox:
+      id: ${device_id}_nox
+      name: ${device_id}.nox
+
+    temperature_compensation:
+      offset: 0
+      normalized_offset_slope: 0
+      time_constant: 0
+
+# https://github.com/DeastinY/esphome-waveshare-e-paper-dashboard
+font:
+  - file:
+      type: gfonts
+      family: Roboto
+    id: font12
+    size: 12
+
+  - file:
+      type: gfonts
+      family: Roboto
+    id: font18
+    size: 18
+
+  - file:
+      type: gfonts
+      family: Roboto
+    id: font24
+    size: 24
+
+display:
+  - platform: waveshare_epaper
+    id: ${device_id}_waveshare_2_9
+    name: ${device_id}.waveshare_2_9
+    busy_pin: 5
+    reset_pin: 4
+    dc_pin: 3
+    cs_pin: 20    
+    model: 2.90inv2
+    rotation: 90
+    full_update_every: 1
+    update_interval: 30s
+    reset_duration: 2ms
+    lambda: |- 
+      it.rectangle(0, 0, 74, 15);
+      it.print(20, 0, id(font12), "Inside");
+      if (id(${device_id}_temp).has_state()) {
+        it.printf(74, 17, id(font24), TextAlign::TOP_RIGHT , "%.1f°F", id(${device_id}_temp).state);
+      }
+      if (id(${device_id}_humidity).has_state()) {
+        it.printf(74, 38, id(font24), TextAlign::TOP_RIGHT , "%.0f%%", id(${device_id}_humidity).state);
+      }
+      
+      /* TIME */
+      it.strftime(117, 0, id(font12), TextAlign::TOP_CENTER, "%H:%M", id(homeassistant_time).now());
+
+      it.printf(171, 0, id(font12), TextAlign::TOP_CENTER , "AQI");
+      if (id(airnow_aqi).has_state()) {
+        it.printf(171, 17, id(font24), TextAlign::TOP_CENTER , "%.0f", id(airnow_aqi).state);
+      }
+      if (id(airnow_pm2_5).has_state()) {
+        it.printf(171, 45, id(font12), TextAlign::TOP_CENTER , "%.1f", id(airnow_pm2_5).state);
+      }
+
+      it.rectangle(147, 0, 290, 15);
+      it.line(196, 0, 196, 15);
+      it.printf(245, 0, id(font12), TextAlign::TOP_CENTER , "Outside");
+      it.line(295, 0, 295, 15);      
+      if (id(aqi_outside_temperature).has_state()) {
+        it.printf(293, 17, id(font24), TextAlign::TOP_RIGHT , "%.1f°F", id(aqi_outside_temperature).state);
+      }
+      if (id(aqi_outside_humidity).has_state()) {
+        it.printf(293, 38, id(font24), TextAlign::TOP_RIGHT , "%.0f%%", id(aqi_outside_humidity).state);
+      }
+      
+      it.rectangle(0, 70, 295, 123);      
+      
+      it.line(0, 90, 295, 90);
+      it.printf(24, 73, id(font12), TextAlign::TOP_CENTER, "PM1");
+      if (id(${device_id}_pm1).has_state()) {
+        it.printf(24, 94, id(font18), TextAlign::TOP_CENTER , "%.0f", id(${device_id}_pm1).state);
+      }
+     
+      it.line(49, 70, 49, 127);  
+      it.printf(73, 73, id(font12), TextAlign::TOP_CENTER, "PM2.5");      
+      if (id(${device_id}_pm25).has_state()) {
+        it.printf(73, 94, id(font18), TextAlign::TOP_CENTER , "%.0f", id(${device_id}_pm25).state);
+      }
+            
+      it.line(98, 70, 98, 127);  
+      it.printf(122, 73, id(font12), TextAlign::TOP_CENTER, "PM4");
+      if (id(${device_id}_pm4).has_state()) {
+        it.printf(122, 94, id(font18), TextAlign::TOP_CENTER , "%.0f", id(${device_id}_pm4).state);      
+      } 
+      
+      it.line(147, 70, 147, 127);
+      it.printf(171, 73, id(font12), TextAlign::TOP_CENTER, "PM10"); 
+      if (id(${device_id}_pm10).has_state()) {
+        it.printf(171, 94, id(font18), TextAlign::TOP_CENTER , "%.0f", id(${device_id}_pm10).state);      
+      } 
+
+      it.line(196, 70, 196, 127);
+      it.printf(220, 73, id(font12), TextAlign::TOP_CENTER, "VOC");
+      if (id(${device_id}_voc).has_state()) {
+        it.printf(220, 94, id(font18), TextAlign::TOP_CENTER , "%.0f", id(${device_id}_voc).state);      
+      } 
+
+      it.line(245, 70, 245, 127);
+      it.printf(269, 73, id(font12), TextAlign::TOP_CENTER, "NOx");
+      if (id(${device_id}_nox).has_state()) {
+        it.printf(269, 94, id(font18), TextAlign::TOP_CENTER , "%.0f", id(${device_id}_nox).state);      
+      }      
+      
+      it.line(0, 127, 295, 127);

@@ -1,0 +1,41 @@
+esphome:
+  name: ${device_id}  
+  platformio_options:
+    board_build.flash_mode: dio
+
+esp32:
+  board: seeed_xiao_esp32c3
+  variant: esp32c3
+  framework:
+    type: arduino
+    version: 2.0.9
+    platform_version: 6.3.2
+
+i2c:
+  - id: bus_a
+    sda: 6
+    scl: 7
+    scan: true
+
+# Heartbeat Sensor
+sensor:
+  - platform: wifi_signal # Reports the WiFi signal strength/RSSI in dB
+    id: ${device_id}_wifi_signal    
+    name: ${device_id}.wifi_signal    
+    unit_of_measurement: "dB"
+    update_interval: 30s
+
+api:
+  encryption:
+    key: ${device_key}
+
+ota:
+  password: ${device_password}
+
+# Enable logging
+logger:
+
+# WIFI Details
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
