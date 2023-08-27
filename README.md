@@ -4,15 +4,17 @@ The purpose of this project is to create a stand-alone sensor device for indoor 
 
 # Device Details
 
-Sensor Metrics:
+Sensirion Sen55 Sensor:  ([Datasheet](https://sensirion.com/media/documents/6791EFA0/62A1F68F/Sensirion_Datasheet_Environmental_Node_SEN5x.pdf))
 - Temperature
 - Humidity
 - PM1, PM2.5, PM4, PM10
 - VOC
 - NOx
 
-Light:
-- NeoPixel led for showing alert status
+NeoPixel LED (WS2812b):
+- LED for showing alert status
+
+# Device 
 
 ![device_front](attachments/device_front.png)
 
@@ -20,16 +22,16 @@ Light:
 
 ![device_wiring](attachments/device_wiring.png)
 
-# Battery Monitoring
-
-I started out attempting to make this sensor battery powered in addition to USB powered, however I just can't get consistent results yet and so the battery monitoring component of this project has been put on hold in favor of a always plugged in design approach.
-
 # Outside AQI Sensing
 
 Leveraging a commercial / government sensor for outside sensing of AQI on PM2.5 is the ideal configuration.  AirNow.gov has a API which Home Assistant has a integration created to pull in the sensor data.
 
 You must first get a API key here:
 https://docs.airnowapi.org/
+
+# Battery Monitoring
+
+I started out attempting to make this sensor battery powered in addition to USB powered, however I just can't get consistent results yet and so the battery monitoring component of this project has been put on hold in favor of a always plugged in design approach.
 
 # Proof of Concent v5
 
