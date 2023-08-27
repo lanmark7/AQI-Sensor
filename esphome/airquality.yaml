@@ -18,7 +18,7 @@ time:
 light:
   - platform: neopixelbus
     id: ${device_id}_status_led
-    name: ${device_id}_status_led
+    name: ${device_id}.status_led
     type: GRB
     variant: WS2811
     pin: 21
