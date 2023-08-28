@@ -30,6 +30,12 @@ api:
       then:
         - sen5x.start_fan_autoclean: sen55
 
+globals:
+  - id: current_status
+    type: int
+    restore_value: no
+    initial_value: '0'
+
 sensor:
   - platform: homeassistant
     id: airnow_pm2_5
@@ -88,10 +94,23 @@ sensor:
     voc:
       id: ${device_id}_voc
       name: ${device_id}.voc
+      # algorithm_tuning:
+      #   index_offset: 100
+      #   learning_time_offset_hours: 12
+      #   learning_time_gain_hours: 12
+      #   gating_max_duration_minutes: 180
+      #   std_initial: 50
+      #   gain_factor: 230
     nox:
       id: ${device_id}_nox
       name: ${device_id}.nox
-
+      # algorithm_tuning:
+      #   index_offset: 100
+      #   learning_time_offset_hours: 12
+      #   learning_time_gain_hours: 12
+      #   gating_max_duration_minutes: 180
+      #   std_initial: 50
+      #   gain_factor: 230
     temperature_compensation:
       offset: 0
       normalized_offset_slope: 0
@@ -129,7 +148,12 @@ display:
     full_update_every: 1
     update_interval: 30s
     reset_duration: 2ms
-    lambda: |- 
+    lambda: |-
+      #define Color1 1.0, 0.5, 0.0
+      #define Color2 1.0, 0.5, 0.0
+      #define Color3 1.0, 1.0, 0.0
+      #define Color4 1.0, 0.0, 0.0
+
       it.rectangle(0, 0, 74, 15);
       it.print(20, 0, id(font12), "Inside");
       if (id(${device_id}_temp).has_state()) {
@@ -200,3 +224,57 @@ display:
       }      
       
       it.line(0, 127, 295, 127);
+
+      int new_status = 0;       
+      if (id(${device_id}_pm25).has_state()) {
+        if (id(${device_id}_pm25).state > 250)      { new_status = 4; } 
+        else if (id(${device_id}_pm25).state > 150) { new_status = 3; } 
+        else if (id(${device_id}_pm25).state > 50)  { new_status = 2; } 
+      }
+
+      if (id(${device_id}_nox).has_state()) {
+        if (id(${device_id}_nox).state > 2 && new_status < 4)      { new_status = 4; }
+        else if (id(${device_id}_nox).state > 1 && new_status < 2)      { new_status = 2; }
+      }
+
+      if(new_status == 0 && !id(airnow_aqi).has_state()) { new_status = 1;  }
+
+      ESP_LOGD("main", "New Status: %d", new_status);
+
+      if(new_status != id(current_status)){
+        auto led = id(${device_id}_status_led).make_call();
+        if(new_status > 0) {
+          led.set_state(true);
+        } else {
+          led.set_state(false); 
+        }
+
+        switch(new_status){
+          case 1: {
+            led.set_rgb(Color1);
+            led.set_brightness(0.2);
+            break;
+          }
+          case 2: {
+            led.set_rgb(Color2);
+            led.set_brightness(0.2);
+            break;
+          }
+          case 3: {
+            led.set_rgb(Color3);
+            led.set_brightness(0.5);
+            break;
+          }
+          case 4: {
+            led.set_rgb(Color4);
+            led.set_brightness(0.5);
+            break;
+          }
+          default: {
+            break;
+          }
+        }
+        led.perform();  
+
+        id(current_status) = new_status;   
+      }
